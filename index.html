@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collaborative Fidelity | Precision & Partnership</title>
-    <meta name="description" content="Collaborative Fidelity: A dedicated digital space for collaboration, integrity, and shared progress. Currently in development.">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         :root {
@@ -17,112 +17,157 @@
         }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background-color: var(--bg); 
-            color: var(--text-main); 
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background-color: var(--bg); color: var(--text-main); line-height: 1.6;
+            margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center;
+            transition: direction 0.3s ease;
         }
-        header {
-            text-align: center;
-            padding: 100px 20px 60px;
-            max-width: 800px;
-        }
-        h1 { font-size: 3rem; letter-spacing: -0.05em; color: var(--accent); margin-bottom: 0.5rem; }
-        .tagline { font-style: italic; color: var(--text-dim); font-size: 1.2rem; margin-bottom: 2rem; }
         
-        .section {
-            max-width: 800px;
-            width: 90%;
-            margin-bottom: 4rem;
+        /* Accessibility Toolbar */
+        .a11y-toolbar {
+            position: sticky; top: 0; width: 100%;
+            background: var(--card-bg); border-bottom: 1px solid var(--border);
+            padding: 10px; display: flex; justify-content: center; gap: 15px; z-index: 100;
+            flex-wrap: wrap;
         }
+        .a11y-btn, .lang-select {
+            background: var(--bg); color: var(--accent); border: 1px solid var(--accent);
+            padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .a11y-btn:hover { background: var(--accent); color: var(--bg); }
+
+        header { text-align: center; padding: 60px 20px; max-width: 800px; }
+        h1 { font-size: 3rem; color: var(--accent); margin-bottom: 0.5rem; }
+        .tagline { font-style: italic; color: var(--text-dim); font-size: 1.2rem; }
+        
+        .section { max-width: 800px; width: 90%; margin-bottom: 4rem; }
         h2 { border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; color: var(--accent); }
         
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        .card {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-        .card h3 { margin-top: 0; color: var(--text-main); }
-        .card p { font-size: 0.95rem; color: var(--text-dim); }
-
-        .roadmap-item {
-            display: flex;
-            margin-bottom: 1rem;
-            padding-left: 1rem;
-            border-left: 2px solid var(--accent);
-        }
-        .q-label { font-weight: bold; min-width: 60px; color: var(--accent); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        .card { background: var(--card-bg); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border); }
         
-        footer {
-            padding: 4rem 20px;
-            text-align: center;
-            color: var(--text-dim);
-            font-size: 0.8rem;
-            border-top: 1px solid var(--border);
-            width: 100%;
+        .upload-zone {
+            border: 2px dashed var(--accent); padding: 40px; text-align: center;
+            border-radius: 12px; background: rgba(56, 189, 248, 0.05); cursor: pointer;
         }
+
+        .contact-card { background: var(--card-bg); border: 1px solid var(--accent); padding: 2rem; border-radius: 12px; text-align: center; }
+        .contact-link { color: var(--accent); text-decoration: none; font-weight: bold; }
+        
+        footer { padding: 4rem 20px; text-align: center; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); width: 100%; }
     </style>
 </head>
 <body>
 
+    <div class="a11y-toolbar">
+        <select id="langPicker" class="lang-select" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="es">Español (Spanish)</option>
+            <option value="fr">Français (French)</option>
+            <option value="ht">Kreyòl (Haitian Creole)</option>
+            <option value="zh">Mandarin (Chinese)</option>
+            <option value="tl">Tagalog (Filipino)</option>
+            <option value="vi">Tiếng Việt (Vietnamese)</option>
+            <option value="ar">العربية (Arabic)</option>
+            <option value="ko">한국어 (Korean)</option>
+            <option value="pt">Português (Portuguese)</option>
+            <option value="ru">Русский (Russian)</option>
+        </select>
+        <button class="a11y-btn" onclick="toggleLayman()">Toggle Layman's Terms</button>
+        <button class="a11y-btn" onclick="readAloud()">Read Aloud</button>
+        <button class="a11y-btn" onclick="exportToPDF()">Export PDF</button>
+    </div>
+
     <header>
-    <h1>Collaborative Fidelity</h1>
-    <div class="tagline">“An Effort & Ideology founded in Transparent Collaboration, Structure, & Creativity.”</div>
-    <p>A dedicated framework for the intersection of precision and partnership. We are bridging the gap between high-level integrity and practical execution.</p>
-</header>
+        <h1 id="title">Collaborative Fidelity</h1>
+        <div class="tagline" id="tagline">“An Effort & Ideology founded in Transparent Collaboration, Structure, & Creativity.”</div>
+    </header>
 
     <section class="section">
-        <h2>Core Values</h2>
+        <h2 id="values-h">Core Values</h2>
         <div class="grid">
             <div class="card">
-                <h3>Radical Integrity</h3>
-                <p>Prioritizing truth and accuracy in every data point and interaction.</p>
+                <h3 id="val1-t">Radical Integrity</h3>
+                <p id="val1-d">Prioritizing truth and accuracy in every data point and interaction.</p>
             </div>
             <div class="card">
-                <h3>Collective Ownership</h3>
-                <p>Recognizing that fidelity is achieved through shared effort and mutual accountability.</p>
+                <h3 id="val2-t">Collective Ownership</h3>
+                <p id="val2-d">Recognizing that fidelity is achieved through shared effort and mutual accountability.</p>
             </div>
             <div class="card">
-                <h3>Adaptive Precision</h3>
-                <p>Maintaining high standards while remaining flexible enough to evolve with new information.</p>
+                <h3 id="val3-t">Adaptive Precision</h3>
+                <p id="val3-d">Maintaining high standards while remaining flexible enough to evolve with new information.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="secure-upload">
+        <h2 id="upload-h">Secure Fidelity Upload</h2>
+        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" style="display:none">
+            <p id="upload-status">Click or Drag & Drop IEP Document (PDF or TXT)</p>
+            <small style="color:var(--text-dim)">Encrypted & HIPAA/FERPA compliant placeholder</small>
+        </div>
+    </section>
+
+    <section class="section" id="resources">
+        <h2 id="res-h">IEP Accessibility Demo</h2>
+        <div class="card" style="border-left: 5px solid var(--accent);">
+            <h3 id="iep-title">Sample Section: Present Levels (PLAAFP)</h3>
+            <div style="margin-top: 1rem; padding: 1rem; background: var(--bg); border-radius: 4px;">
+                <p id="iep-text-main">Student demonstrates significant deficits in executive functioning, specifically regarding task initiation and sustained cognitive endurance.</p>
+                <hr style="border: 0; border-top: 1px solid var(--border); margin: 1rem 0;">
+                <p id="iep-text-simple" style="color: var(--text-dim);">The student has a hard time starting their work and staying focused.</p>
             </div>
         </div>
     </section>
 
     <section class="section">
-        <h2>2026 Roadmap</h2>
-        <div class="roadmap-item">
-            <span class="q-label">Q1</span>
-            <div><strong>Foundational Infrastructure</strong> – Secure domains and launch placeholder presence. (Active)</div>
-        </div>
-        <div class="roadmap-item">
-            <span class="q-label">Q2</span>
-            <div><strong>Conceptual Architecture</strong> – Define primary pillars and engage collaborators.</div>
-        </div>
-        <div class="roadmap-item">
-            <span class="q-label">Q3</span>
-            <div><strong>Alpha Development</strong> – Build the first functional iteration of the platform.</div>
-        </div>
-        <div class="roadmap-item">
-            <span class="q-label">Q4</span>
-            <div><strong>Pilot Launch</strong> – Open for testing and refine the fidelity of the system.</div>
+        <h2 id="contact-h">Connect With Us</h2>
+        <div class="contact-card">
+            <p id="contact-text">For inquiries regarding our framework or collaborative efforts:</p>
+            <p>Email: <a href="mailto:MichaelJulius.CoFi@gmail.com" class="contact-link">MichaelJulius.CoFi@gmail.com</a></p>
+            <p>Phone: <a href="tel:+13023650482" class="contact-link">302-365-0482</a></p>
         </div>
     </section>
 
-   <footer>
-        &copy; 2026 Collaborative-Fidelity LLC. All Rights Reserved. <br>
-        Collaborative Fidelity is a proprietary technology and consultancy framework.
+    <footer>
+        &copy; 2026 Collaborative-Fidelity LLC. All Rights Reserved.
     </footer>
+
+    <script>
+        let currentLang = 'en';
+        let isLayman = false;
+
+        const dictionary = {
+            en: { title: "Collaborative Fidelity", v1t: "Radical Integrity", v1d: "Prioritizing truth and accuracy...", v1l: "Always being honest and correct.", resH: "IEP Accessibility Demo", contact: "Connect With Us" },
+            es: { title: "Fidelidad Colaborativa", v1t: "Integridad Radical", v1d: "Priorizar la verdad y la precisión...", v1l: "Ser siempre honestos y correctos.", resH: "Demostración de IEP", contact: "Conéctate" },
+            ar: { title: "الولاء التعاوني", v1t: "النزاهة الجذرية", v1d: "إعطاء الأولوية للحقيقة والدقة...", v1l: "أن نكون صادقين وصحيحين دائمًا.", resH: "عرض إمكانية الوصول", contact: "اتصل بنا" },
+            // (Other languages would populate here)
+        };
+
+        function updateUI() {
+            const lang = dictionary[currentLang] || dictionary['en'];
+            document.getElementById('title').innerText = lang.title;
+            document.getElementById('val1-t').innerText = lang.v1t;
+            document.getElementById('val1-d').innerText = isLayman ? lang.v1l : lang.v1d;
+            document.getElementById('res-h').innerText = lang.resH;
+            document.getElementById('contact-h').innerText = lang.contact;
+            document.body.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+        }
+
+        function changeLanguage(val) { currentLang = val; updateUI(); }
+        function toggleLayman() { isLayman = !isLayman; updateUI(); }
+        function readAloud() { 
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(document.body.innerText);
+            utterance.lang = currentLang;
+            window.speechSynthesis.speak(utterance);
+        }
+        function exportToPDF() {
+            const opt = { margin: 0.5, filename: 'CoFi_Document.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter' }};
+            html2pdf().set(opt).from(document.body).save();
+        }
+    </script>
 </body>
 </html>
